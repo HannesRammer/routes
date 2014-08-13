@@ -2,7 +2,7 @@ library routing.server;
 import "dart:io";
 import 'dart:async';
 import "package:route/server.dart";
-import 'package:route/pattern.dart';
+//import 'package:route/pattern.dart';
 import 'package:params/server.dart';
 
 initRouter(server,serverRoutes){
@@ -12,7 +12,7 @@ initRouter(server,serverRoutes){
   }); 
   
   var router = new Router(server);
-  router.filter(matchesAny(urls), print("filter"));
+  //router.filter(matchesAny(urls), print("filter"));
   
   serverRoutes.forEach((String routeName,Map route){
     
