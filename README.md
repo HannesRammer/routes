@@ -1,75 +1,95 @@
-ROUTES
+##ROUTES
+-------
 
-simple server routing via simple routes.dart map file
+Is a simple server routing via a single routes.dart file
 
-builds on route and params package 
+routes builds on route and params package 
+[route](https://pub.dartlang.org/packages/route)
+and
+[params](https://pub.dartlang.org/packages/params)
 
-1.add dependencies to pubspec
+1. add dependencies to pubspec
 
-  route: ">=0.4.6 <0.5.0"
-  routes: ">=0.0.1 <0.1.0"
+       route: ">=0.4.6 <0.5.0"
+       routes: ">=0.0.1 <0.1.0"
 
-2. create the simple server  
+2. create a routes file
+###ROUTES
 
-      HttpServer.bind("127.0.0.1", 8079).then((server) {
-      
-        //here is the magic
-        var router = initRouter(server, serverRoutes);
-      
-        print("Listening for GET and POST on http://127.0.0.1:8079");
-      }, onError: printError);
-      
-     
-     initRouter(rootPath, server, serverRoutes); 
-     generates a router using the serverRoutes specified inside the routes.dart file
-     
-      
-ROUTES
-------
-
-  projectRootFolder/routes.dart
+ inside projectRootFolder/routes.dart
  
-      part of sampleServerGui;
+       part of sampleServerGui;
       
-      final Map serverRoutes={
-        'byeJs':{'url':new UrlPattern(r'/byeJs'),'action': byeJs },
-        'helloDart':{'url':new UrlPattern(r'/helloDart'),'method':'GET','action': helloDart }
-      };
+       final Map serverRoutes={
+         'byeJs':{'url':new UrlPattern(r'/byeJs'),'action': byeJs },
+         'helloDart':{'url':new UrlPattern(r'/helloDart'),'method':'GET','action': helloDart }
+       };
   
-        
+  here we see 2 routes **'byeJs'** and **'helloDart'**
+  
+  routes always have a 
+  
+  **url -> url pattern** and an 
+  
+  **action -> called method** and an optional
+  
+  **method -> that currently handels 'PUT' and 'GET'**
 
-SERVER
-------
+3. create the simple server with functions for each specified action (helloDart,byeJs)
+###SERVER
 
   projectRootFolder/bin/simpleServer.dart
 
-      library sampleServerGui;
+       library sampleServerGui;
+       
+       import "dart:io";
+       import 'dart:convert';
+       import 'package:route/url_pattern.dart';
+       import 'package:routes/server.dart';
       
-      import "dart:io";
-      import 'dart:convert';
-      import 'package:route/url_pattern.dart';
-      import 'package:routes/server.dart';
+       part '../routes.dart';
       
-      part '../routes.dart';
+       void main() {
+         HttpServer.bind("127.0.0.1", 8079).then((server) {
+           var router = initRouter(server, serverRoutes);
+         }, onError: printError);
+       }
       
-      void main() {
-        HttpServer.bind("127.0.0.1", 8079).then((server) {
-          var router = initRouter(server, serverRoutes);
-          print("Listening for GET and POST on http://$HOST:$PORT");
-        }, onError: printError);
-      }
+       void printError(error) => print(error);
       
-      void printError(error) => print(error);
-      
-      helloDart(Map params, HttpResponse res){
-        Map map = {"language":params["language"]};
-        if(params["language"] == "Dart"){
-          map["text"]="Hello";
-        }else{
-          map["text"]="GOODBYE";
-        }
-        print(map.toString());
-        res.write(JSON.encode(map));
-        res.close();
-      }
+       helloDart(Map params, HttpResponse res){
+         Map newMap = {"language":params["language"]};
+         if(params["language"] == "Dart"){
+           newMap["text"]="Hello";
+         }else{
+           newMap["text"]="GOODBYE";
+         }
+         res.write(JSON.encode(newMap));
+         res.close();
+       }
 
+       byeJs(Map params, HttpResponse res){
+         //do stuff
+       }
+
+
+now you can talk to the server eg with 
+**http://127.0.0.1:8079/helloDart?language=Dart**
+
+------------------
+###WHATS HAPPENING
+------------------
+the Magic happens here
+      
+      var router = initRouter(server, serverRoutes);
+      
+it automatically generates a router that will use the specified routes in routes.dart
+
+the action specified inside the routes will recieve 2 parameters 
+
+**a Map params **-> including the parameters send in the request
+**a HTTPResponse res **
+
+------
+
+Download a working example [here](https://github.com/HannesRammer/dart-server-client-sample-code)
