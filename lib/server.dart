@@ -2,16 +2,17 @@ library routing.server;
 import "dart:io";
 import 'dart:async';
 import "package:route/server.dart";
+import 'package:route/pattern.dart';
 import 'package:params/server.dart';
 
-initRouter(String rootPath,server,serverRoutes){
-  List urls = [];
+initRouter(server,serverRoutes){
+  List urls = new List();
   serverRoutes.forEach((k,v){
     urls.add(serverRoutes[k]['url']);
   }); 
   
   var router = new Router(server);
-  //router.filter(matchesAny(urls), authFilter);
+  router.filter(matchesAny(urls), print("filter"));
   
   serverRoutes.forEach((String routeName,Map route){
     
@@ -63,3 +64,13 @@ closeResWith(HttpResponse res,String object){
   res.write(object);
   res.close();
 }
+
+/*
+void handleOptions(HttpRequest req) {
+  HttpResponse res = req.response;
+  addCorsHeaders(res);
+  print("${req.method}: ${req.uri.path}");
+  res.statusCode = HttpStatus.NO_CONTENT;
+  res.close();
+}
+*/
