@@ -5,13 +5,13 @@ import "package:route/server.dart";
 //import 'package:route/pattern.dart';
 import 'package:params/server.dart';
 
-initRouter(server,serverRoutes){
+Router initRouter(server,serverRoutes){
   List urls = new List();
   serverRoutes.forEach((k,v){
     urls.add(serverRoutes[k]['url']);
   }); 
   
-  var router = new Router(server);
+  Router router = new Router(server);
   //router.filter(matchesAny(urls), print("filter"));
   
   serverRoutes.forEach((String routeName,Map route){
@@ -28,16 +28,22 @@ initRouter(server,serverRoutes){
       serve = router.serve(route['url'], method: route['method']);
     }
     
-    serve.listen((HttpRequest req){
+    serve.listen((HttpRequest req) async{
         initParams(req);
         HttpResponse res = req.response;
         print("${req.method}: ${req.uri.path}");
         String path = req.uri.path;
         addCorsHeaders(res);
-        route['action'](params,res);
+        if(route.containsKey('async') && route['async']){
+          await route['action'](params,res);
+        }else{
+          route['action'](params,res);
+        }
+
     });
   });
   router.defaultStream.listen(defaultHandler);
+  return router;
 }
 
 /**
@@ -60,7 +66,7 @@ void defaultHandler(HttpRequest req) {
   closeResWith(res,"Not found: ${req.method}, ${req.uri.path}");
 }
 
-closeResWith(HttpResponse res,String object){
+closeResWith(HttpResponse res, object){
   res.write(object);
   res.close();
 }

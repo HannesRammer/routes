@@ -10,9 +10,9 @@ and
 
 1. add dependencies to pubspec
 
-       route: ">=0.4.6 <0.5.0"
+       route: "^0.4.6"
        
-       routes: ">=0.0.1 <0.1.0"
+       routes: "^0.1.4"
 
 2. create a routes file
 ###ROUTES
@@ -22,7 +22,7 @@ and
        part of sampleServerGui;
       
        final Map serverRoutes={
-         'byeJs':{'url':new UrlPattern(r'/byeJs'),'action': byeJs },
+         'byeJs':{'url':new UrlPattern(r'/byeJs'),'action': byeJs,'async':true },
          'helloDart':{'url':new UrlPattern(r'/helloDart'),'method':'GET','action': helloDart }
        };
   
@@ -49,11 +49,15 @@ and
        import 'package:routes/server.dart';
       
        part '../routes.dart';
-      
-       void main() {
-         HttpServer.bind("127.0.0.1", 8079).then((server) {
+       
+       final String HOST = "127.0.0.1"; // eg: localhost
+       
+       final num PORT = 8079;
+       
+       main() async {
+           var server = await HttpServer.bind(HOST, PORT);
            var router = initRouter(server, serverRoutes);
-         }, onError: printError);
+           print("Listening for GET and POST on http://$HOST:$PORT");
        }
       
        void printError(error) => print(error);
